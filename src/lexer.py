@@ -1,3 +1,5 @@
+from curses.ascii import isspace
+from this import d
 from error import TrollResult
 from string import ascii_letters
 
@@ -19,67 +21,67 @@ class Lexer:
     
     def __init__(self, source: str = None) -> None:
         self.source = source
-        self.line = 0
-        self.col = 0
+        self.idx = 0
+        self.ident_incl = ascii_letters+"_"
         
-    def current(self) -> str:
-        return self.source[self.line][self.col]
-
-    def advance(self, steps: int = 1) -> None:
+    def cur(self) -> str:
+        return self.source[self.idx]
+    
+    def adv(self, steps: int = 1) -> None:
         for _ in range(steps):
-            if self.current() == "\n":
-                self.line += 1
-                self.col = 0
-                return
-            self.col += 1
-        
+            if self.idx < len(self.source) - 1:
+                self.idx += 1
+    
     def lex_ident(self) -> str:
-        lexeme = self.current()
-        self.advance()
-        while not self.current().isspace():
-            lexeme += self.current()
-            self.advance()
+        lexeme = ""
+        while not self.cur().isspace() and self.cur() in self.ident_incl:
+            lexeme += self.cur()
+            self.adv()
+        self.adv()
         return lexeme
+    
+    def lex_str(self) -> str:
+        lexeme = ""
+        self.adv()
+        while self.cur() != '"':
+            lexeme += self.cur()
+            self.adv()
+        self.adv()
+        return lexeme
+    
+    def lex_op(self) -> tuple[str, TrollResult]:
+        
+        if self.cur() in "+-/*":
+            return self.cur(), TrollResult()
+        else:
+            return "", TrollResult(False)
+            
     
     def lex(self) -> tuple[list[Token], TrollResult]:
         
         tokens = []
-        ident_incl = ascii_letters+"_"
         lexeme = ""
         result = TrollResult()
         
-        while True:
-                    
-            if not self.source:
-                return tokens, TrollResult(False)
-                
-            if self.current() in ident_incl:
+        while self.idx < len(self.source) - 1:
+            
+            if self.cur() in self.ident_incl:
                 lexeme = self.lex_ident()
                 tokens.append(Token(IDENTIFIER, lexeme))
                 
-            elif self.current().isdecimal():
-                #lexeme = self.lex_num()
-                pass
-            
-            elif self.current() == '"':
-                #lexeme = self.lex_str()
-                pass
-            
-            elif self.current() in ['\n', ' ', '\t']:
-                if self.current() == '\n':
-                    self.line += 1
-                    self.col = 0
-                else:
-                    self.col += 1
+            elif self.cur() == '"':
+                lexeme = self.lex_str()
+                tokens.append(Token(STRING, lexeme))
+                
+            elif self.cur().isspace():
+                self.adv()
                 
             else:
-                tokens.append(Token(OPERATOR, self.current()))
-                self.advance()
+                lexeme, result = self.lex_op()
+                if result.success is False:
+                    return tokens, result
+                tokens.append(Token(OPERATOR, lexeme))
                 
-            if self.line+1 == len(self.source) and self.col+1 == len(self.source[self.line]):
-                # check if end of file was reached
-                tokens.append(Token(EOF, "EOF"))
-                break
         
-        return tokens, TrollResult()
+        return tokens, result
         

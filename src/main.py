@@ -10,6 +10,7 @@ from subprocess import call
 from sys import argv
 from error import TrollResult
 from lexer import Lexer, Token
+from parser import Parser
 
 clear = lambda: call("clear")
     
@@ -19,7 +20,7 @@ def main(argc: int, argv: list[str]) -> TrollResult:
     res = None
     
     with open(argv[1], 'r') as file:
-        content = file.readlines()
+        content = file.read()
         
     lexer = Lexer(content)
     tokens, res = lexer.lex()
@@ -28,7 +29,13 @@ def main(argc: int, argv: list[str]) -> TrollResult:
     if res.success is False: 
         return res
 
-    # interpreter = Interpreter(tokens)
+    parser = Parser(tokens)
+    ast, res = parser.parse()
+    
+    if res.success is False:
+        return res
+    
+    # interpret ...
     
     return res
 
