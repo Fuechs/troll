@@ -2,6 +2,30 @@ from typing import Any
 from error import TrollResult
 from lexer import Token, IDENTIFIER, STRING, NUMBER, OPERATOR
 
+KEY_START = "troll"
+KEY_END = "TROLL"
+KEY_LABEL = "Troll"
+KEY_GOTO = "trolL"
+
+def debugAST(ast: dict) -> None:
+    name = ast["name"]
+    stmts = ast["statements"]
+    
+    print("---", name, "---")
+    for count, stmt in enumerate(stmts):
+        print(count, end=" ")
+        for arg in stmt:
+            print(arg, end=" ")
+        print()
+        
+class String:
+    def __init__(self, value: str) -> None:
+        self.value = value
+        
+    def __repr__(self) -> str:
+        return f"'{self.value}'"
+    
+
 class Parser:
     
     def __init__(self, tokens: list[Token]) -> None:
@@ -26,21 +50,20 @@ class Parser:
         self.adv()
         return comp
     
-    def parse(self) -> tuple[Any, TrollResult]:
+    def parse(self) -> tuple[dict[Any, Any], TrollResult]:
         
-        print("parsing:", self.tokens)
-        
-        if self.expect("troll") is False:
+        ast = {"name": "root", "statements": []}
+                        
+        if self.expect(KEY_START) is False:
             return None, TrollResult(False)
         
         while self.idx < len(self.tokens) - 1:
             
-            if self.cur().lexeme == "TROLL":
+            if self.cur().lexeme == KEY_END:
                 break
             
             if self.cur().type == STRING:
-                print(self.cur().lexeme) # testing for now
-                # would be (put "Hello World!")
+                ast["statements"].append(["put", String(self.cur().lexeme)])
                 self.adv()
-        
-        return None, TrollResult()
+                        
+        return ast, TrollResult()
