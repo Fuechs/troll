@@ -24,7 +24,6 @@ class String:
         
     def __repr__(self) -> str:
         return f"'{self.value}'"
-    
 
 class Parser:
     
@@ -62,8 +61,18 @@ class Parser:
             if self.cur().lexeme == KEY_END:
                 break
             
-            if self.cur().type == STRING:
+            elif self.cur().type == STRING:
                 ast["statements"].append(["put", String(self.cur().lexeme)])
+                self.adv()
+                
+            elif self.cur().lexeme == KEY_LABEL:
+                self.adv()
+                ast["statements"].append(["lab", String(self.cur().lexeme)])
+                self.adv()
+            
+            elif self.cur().lexeme == KEY_GOTO:
+                self.adv()
+                ast["statements"].append(["jmp", String(self.cur().lexeme)])
                 self.adv()
                         
         return ast, TrollResult()
