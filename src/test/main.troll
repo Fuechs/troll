@@ -1,5 +1,8 @@
-troll
-Troll loop
-"Hello World!"
-trolL loop
-TROLL
+troll 
+
+a 1         # a = 1
+1           # push 1
+a + ^       # push a + top of stack
+trOll       # put top of stack
+
+TROLL 

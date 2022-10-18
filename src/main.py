@@ -8,11 +8,10 @@
 
 from subprocess import call
 from sys import argv
-from bytecode import Optimizer, Generator, debugBytecode
 from error import TrollResult
 from lexer import Lexer, Token
 from parser import Parser, debugAST
-from pickle import dump
+from interpreter import Interpreter
 
 clear = lambda: call("clear")
     
@@ -26,8 +25,7 @@ def main(argc: int, argv: list[str]) -> TrollResult:
         
     lexer = Lexer(content)
     tokens, res = lexer.lex()
-    # print(tokens)
-    
+        
     if res.success is False: 
         return res
 
@@ -36,9 +34,7 @@ def main(argc: int, argv: list[str]) -> TrollResult:
     
     if res.success is False:
         return res
-    
-    # debugAST(ast)
-    
+        
     # nothing to optimize here yet
     
     # optimizer = Optimizer(ast)
@@ -47,24 +43,13 @@ def main(argc: int, argv: list[str]) -> TrollResult:
     # if res.success is False:
     #     return res
     
-    # debugAST(ast)
+    # debugAST(ast); print()
     
-    generator = Generator(ast)
-    code, res = generator.generate()
-    
-    debugBytecode(code)
-        
-    with open("out.bin", "wb") as outb:
-        dump(code, outb)
-    
-    if res.success is False:
-        return res
-    
-    
-    # interpret ...
+    interpreter = Interpreter(ast);
+    res = interpreter.interpret()
     
     return res
 
 
 if __name__ == "__main__":
-    print(main(len(argv), argv))
+    print('\n   ', main(len(argv), argv))

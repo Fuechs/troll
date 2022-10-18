@@ -20,7 +20,11 @@ class Token:
 class Lexer:
     
     def __init__(self, source: str = None) -> None:
-        self.source = source
+        if source.endswith("\n"):
+            self.source = source
+        else:
+            self.source = source+"\n"
+            # workaround for advancing
         self.idx = 0
         self.ident_incl = ascii_letters+"_"
         
@@ -49,12 +53,21 @@ class Lexer:
         self.adv()
         return lexeme
     
+    def lex_num(self) -> str:
+        lexeme = ""
+        while not self.cur().isspace() and self.cur().isdecimal():
+            lexeme += self.cur()
+            self.adv()
+        return lexeme
+            
     def lex_op(self) -> tuple[str, TrollResult]:
         
         if self.cur() in "+-/*^":
-            return self.cur(), TrollResult()
+            op = self.cur()
+            self.adv()
+            return op, TrollResult()
         else:
-            return "", TrollResult(False)
+            return "", TrollResult(False, "unknown operator "+self.cur())
             
     
     def lex(self) -> tuple[list[Token], TrollResult]:
@@ -68,12 +81,23 @@ class Lexer:
             if self.cur() in self.ident_incl:
                 lexeme = self.lex_ident()
                 tokens.append(Token(IDENTIFIER, lexeme))
+                if lexeme == "TROLL":
+                    break
                 
             elif self.cur() == '"':
                 lexeme = self.lex_str()
                 tokens.append(Token(STRING, lexeme))
                 
             elif self.cur().isspace():
+                self.adv()
+                
+            elif self.cur().isdigit():
+                lexeme = self.lex_num()
+                tokens.append(Token(NUMBER, lexeme))
+                
+            elif self.cur() == '#':
+                while self.cur() != '\n':
+                    self.adv()
                 self.adv()
                 
             else:

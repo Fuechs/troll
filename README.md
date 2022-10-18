@@ -15,32 +15,24 @@ TROLL
 ```
 
 - `troll` Marks beginning of program
-- `TROLL` Marks end of prorgam
-- `"..."` Prints out a string
-
-###### soon
-
+- `TROLL` Marks end of prorgam (lexer stops here)
 - `Troll identifier` sets label
 - `trolL identifier` goes to label (--> goto)
+- `TrolL` exits program
+- `trOll` outputs top of stack
+- `"..."` Prints out a string
+- `identifier number` defines variable
+- `number` pushes constant onto stack
+- `+` adds two operands together and pushes result onto stack (soon: `- / *`)
+- `^` top of the stack (does not works as first operand lol)
 
+```python
+troll 
 
-```brainfuck
-Troll loop
-"SPAM"
-trolL loop
-```
+a 1         # a = 1
+1           # push 1
+a + ^       # push a + top of stack
+trOll       # put top of stack
 
-- `identifier integer` defines variable
-- `integer` pushes constant onto stack
-- `+` adds two operands together and pushes result onto stack (also available: `- / *`)
-- `^` returns top of the stack
-
-```brainfuck
-a 1
-1
-a + ^
-# top of stack: 2
-a 2 
-a * ^
-# top of stack: 4
+TROLL 
 ```
