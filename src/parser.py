@@ -9,6 +9,7 @@ KEY_LABEL = "Troll"
 KEY_GOTO = "trolL"
 KEY_EXIT = "TrolL"
 KEY_TOP = "trOll"
+KEY_WAIT = "tRoll"
 
 def debugAST(ast: dict) -> None:
     name = ast["name"]
@@ -57,7 +58,7 @@ class Parser:
         
     def adv(self, steps: int = 1) -> None:
         for _ in range(steps):
-            if self.idx+steps < len(self.tokens):
+            if self.idx+1 < len(self.tokens):
                 self.idx += 1
     
     def back(self, steps: int = 1) -> None:
@@ -174,6 +175,14 @@ class Parser:
                 self.adv()
                 # (put StackTop)
                 self.ast["stmts"].append(["put", StackTop()])
+                self.adv()
+                
+            elif self.cur().lexeme == KEY_WAIT:
+                self.adv()
+                if self.cur().type != NUMBER:
+                    return None, TrollResult(False, "invalid number of seconds to wait")
+                # (hlt Number)
+                self.ast["stmts"].append(["hlt", Number(self.cur().lexeme)])
                 self.adv()
                 
             elif self.cur().type == IDENTIFIER:

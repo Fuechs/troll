@@ -43,7 +43,7 @@ def main(argc: int, argv: list[str]) -> TrollResult:
     if res.success is False:
         return res
     
-    # debugAST(ast)
+    debugAST(ast)
     
     interpreter = Interpreter(ast);
     res = interpreter.interpret()

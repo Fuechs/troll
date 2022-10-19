@@ -20,6 +20,7 @@ TROLL
 - `trolL identifier` goes to label (--> goto)
 - `TrolL` exits program
 - `trOll` outputs top of stack
+- `tRoll number` wait N seconds
 - `"..."` Prints out a string
 - `identifier number` defines variable
 - `number` pushes constant onto stack

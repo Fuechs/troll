@@ -1,6 +1,7 @@
 from typing import Any
 from error import TrollResult
 from parser import StackTop, String, Number
+from time import sleep
 
 class Interpreter:
 
@@ -16,8 +17,9 @@ class Interpreter:
         return self.stmts[self.idx]
     
     def adv(self, steps: int = 1) -> None:
-        if self.idx < len(self.stmts):
-            self.idx += steps
+        for _ in range(steps):
+            if self.idx+1 < len(self.stmts):
+                self.idx += 1
     
     """
     checks arg for instance and returns value
@@ -39,6 +41,7 @@ class Interpreter:
                 if isinstance(self.cur()[1], String):
                     print(self.cur()[1].value.replace("\\n", "\n"), end="")
                 elif isinstance(self.cur()[1], StackTop):
+                    # print(self.stack)
                     print(self.stack.pop())
                 self.adv()
             
@@ -50,16 +53,23 @@ class Interpreter:
                 label = self.cur()[1].value
                 if label in self.lmap:
                     self.idx = self.lmap[label]
+                    del label
+                    self.adv()
                 else:
                     return TrollResult(False, "unknown jump location "+label)
                                 
             elif self.cur()[0] == "hlt":
-                break
+                if len(self.cur()) == 1:
+                    break
+                print("\nsleep", self.cur()[1].value)
+                sleep(self.cur()[1].value)
+                self.adv()
             
             elif self.cur()[0] == "def":
                 name = self.cur()[1].value
                 value = self.cur()[2].value
                 self.vmap[name] = value
+                del name, value
                 self.adv()
             
             elif self.cur()[0] == "psh":
@@ -78,6 +88,7 @@ class Interpreter:
                 elif op == "div":   res = op2//op1
                 
                 self.stack.append(res)
+                del op, op1, op2, res
                 self.adv()
 
                                 
