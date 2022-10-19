@@ -6,7 +6,7 @@ class Interpreter:
 
     def __init__(self, ast: dict) -> None:
         self.ast = ast
-        self.stmts = ast["statements"]
+        self.stmts = ast["stmts"]
         self.idx = 0
         self.vmap: dict[str, int] = {} # variable map
         self.lmap: dict[str, int] = {} # label map

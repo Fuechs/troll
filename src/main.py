@@ -12,6 +12,7 @@ from error import TrollResult
 from lexer import Lexer, Token
 from parser import Parser, debugAST
 from interpreter import Interpreter
+from optimizer import Optimizer
 
 clear = lambda: call("clear")
     
@@ -34,16 +35,16 @@ def main(argc: int, argv: list[str]) -> TrollResult:
     
     if res.success is False:
         return res
-        
-    # nothing to optimize here yet
     
-    # optimizer = Optimizer(ast)
-    # ast, res = optimizer.optimize()
+    # debugAST(ast)
+            
+    optimizer = Optimizer(ast)
+    ast, res = optimizer.optimize()
     
-    # if res.success is False:
-    #     return res
+    if res.success is False:
+        return res
     
-    # debugAST(ast); print()
+    # debugAST(ast)
     
     interpreter = Interpreter(ast);
     res = interpreter.interpret()

@@ -1,3 +1,4 @@
+from operator import truediv
 from typing import Any
 from error import TrollResult
 from lexer import Token, IDENTIFIER, STRING, NUMBER, OPERATOR
@@ -11,7 +12,7 @@ KEY_TOP = "trOll"
 
 def debugAST(ast: dict) -> None:
     name = ast["name"]
-    stmts = ast["statements"]
+    stmts = ast["stmts"]
     
     print("---", name, "---")
     for count, stmt in enumerate(stmts):
@@ -19,6 +20,7 @@ def debugAST(ast: dict) -> None:
         for arg in stmt:
             print(arg, end=" ")
         print()
+    print()
         
 class String:
     def __init__(self, value: str) -> None:
@@ -43,6 +45,7 @@ class Parser:
     def __init__(self, tokens: list[Token]) -> None:
         self.tokens = tokens
         self.idx = 0
+        self.ast = {"name": "root", "stmts": []}
         
     def cur(self) -> Token:
         return self.tokens[self.idx]
@@ -54,28 +57,83 @@ class Parser:
         
     def adv(self, steps: int = 1) -> None:
         for _ in range(steps):
-            if self.idx < len(self.tokens) - 1:
+            if self.idx+steps < len(self.tokens):
                 self.idx += 1
+    
+    def back(self, steps: int = 1) -> None:
+        for _ in range(steps):
+            if self.idx - 1 >= 0:
+                self.idx -= 1
                 
     # def expect(self, lexeme: str) -> bool:
     #     comp = self.cur().lexeme == lexeme
     #     self.adv()
     #     return comp
     
-    def parse_operand(self) -> String|Number|StackTop:
+    def parse_def(self) -> bool:
+        name = self.cur().lexeme
+        self.adv()
+        if self.cur().type == NUMBER:
+            val = self.cur().lexeme
+            self.adv()
+            # (def String Number)
+            self.ast["stmts"].append(["def", String(name), Number(val)])
+            return True
+        self.back()
+        return False
+    
+    def parse_operand(self) -> String|Number|StackTop|TrollResult:
         if self.cur().type == NUMBER:
             operand = Number(self.cur().lexeme)
-        elif self.cur().type == STRING:
+        elif self.cur().type in [STRING, IDENTIFIER]:
             operand = String(self.cur().lexeme)
         elif self.cur().lexeme == "^":
             operand = StackTop()
+        else:
+            operand = TrollResult(False, "invalid expression operand "+str(self.cur()))
         self.adv()
         return operand
     
-    def parse(self) -> tuple[dict[Any, Any], TrollResult]:
+    def parse_operation(self) -> str:
+        op = self.cur().lexeme
         
-        ast = {"name": "root", "statements": []}
-                        
+        if op == '+':   op = "add"
+        elif op == '-': op = "sub"
+        elif op == '*': op = "mul"
+        elif op == '/': op = "div"
+        else:           return None
+        
+        self.adv()
+        return op
+
+    def parse_expr(self) -> bool:
+        op1 = self.parse_operand()
+        if (isinstance(op1, TrollResult)): 
+            print(op1)
+            exit()
+            
+        op = self.parse_operation()
+        if op is None: 
+            self.back()
+            return False
+        
+        op2 = self.parse_operand()
+        if (isinstance(op2, TrollResult)):
+            print(op2)
+            exit()
+        
+        # (op op1 op2)
+        self.ast["stmts"].append([op, op1, op2])
+        return True
+        
+    def parse_push(self) -> bool:
+        item = self.parse_operand()
+        # (psh item)
+        self.ast["stmts"].append(["psh", item])
+        return True
+
+    def parse(self) -> tuple[dict[Any, Any], TrollResult]:
+                                
         if self.cur().lexeme != KEY_START:
             return None, TrollResult(False, "missing troll to start program")
         self.adv()
@@ -87,67 +145,45 @@ class Parser:
             
             elif self.cur().type == STRING:
                 # (put String)
-                ast["statements"].append(["put", String(self.cur().lexeme)])
+                self.ast["stmts"].append(["put", String(self.cur().lexeme)])
                 self.adv()
                 
             elif self.cur().type == NUMBER:
-                # (psh Number)
-                ast["statements"].append(["psh", Number(self.cur().lexeme)])
-                self.adv()
+                if (not self.parse_expr() 
+                and not self.parse_push()):   
+                    return None, TrollResult(False, "random number")
                 
             elif self.cur().lexeme == KEY_LABEL:
                 self.adv()
                 # (lab String)
-                ast["statements"].append(["lab", String(self.cur().lexeme)])
+                self.ast["stmts"].append(["lab", String(self.cur().lexeme)])
                 self.adv()
             
             elif self.cur().lexeme == KEY_GOTO:
                 self.adv()
                 # (jmp String)
-                ast["statements"].append(["jmp", String(self.cur().lexeme)])
+                self.ast["stmts"].append(["jmp", String(self.cur().lexeme)])
                 self.adv()
                 
             elif self.cur().lexeme == KEY_EXIT:
                 self.adv()
                 # (hlt)
-                ast["statements"].append(["hlt"])
+                self.ast["stmts"].append(["hlt"])
                 
             elif self.cur().lexeme == KEY_TOP:
                 self.adv()
                 # (put StackTop)
-                ast["statements"].append(["put", StackTop()])
+                self.ast["stmts"].append(["put", StackTop()])
                 self.adv()
                 
-            elif self.cur().type == IDENTIFIER: # definition or expression
-                name = self.cur().lexeme
-                self.adv()
-                if self.cur().type == NUMBER: # variable
-                    val = self.cur().lexeme
-                    self.adv()
-                    # (def String Number)
-                    ast["statements"].append(["def", String(name), Number(val)])
-                elif self.cur().lexeme in "+-/*": # expression 
-                    match self.cur().lexeme:
-                        case '+': op = "add"
-                        case '-': op = "sub"
-                        case '/': op = "div"
-                        case '*': op = "mul"
-                    self.adv()
-                    operand = self.parse_operand()
-                    # (OP String OPERAND)
-                    ast["statements"].append([op, String(name), operand])
+            elif self.cur().type == IDENTIFIER:
+                if (not self.parse_def() 
+                and not self.parse_expr() 
+                and not self.parse_push()):     
+                    return None, TrollResult(False, "random identifier")  
             
-            else: # could be variable definition
-                if self.cur().type != IDENTIFIER:
-                    return None, TrollResult(False, "not suitable type for variable name")
-                name = self.cur().lexeme
-                self.adv()
-                if self.cur().type != NUMBER:
-                    return None, TrollResult(False, "not suitable type for variable value")
-                val = self.cur().lexeme
-                self.adv()
-                # (def String Number)
-                ast["statements"].append(["def", String(name), Number(val)])
+            else:
+                return None, TrollResult(False, "unknown token "+str(self.cur()))
                 
                         
-        return ast, TrollResult()
+        return self.ast, TrollResult()
