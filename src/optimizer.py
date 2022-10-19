@@ -22,7 +22,7 @@ class Optimizer:
     def adv(self, steps: int = 1) -> None:
         if self.idx < len(self.stmts):
             self.idx += steps
-        
+
     def optimize(self) -> tuple[dict[str, list], TrollResult]:
         self.ast["name"] = self.ast["name"]+" (optimized)"
         
@@ -31,10 +31,10 @@ class Optimizer:
             if self.cur()[0] == "psh": 
                 """
                 replace
-                (psh x)
-                (BOP Any StackTop)
+                    (psh x)
+                    (BOP Any|StackTop Any|StackTop)
                 with
-                (BOP Any x) 
+                    (BOP Any|x Any|x) 
                 """
                 if self.peek()[0] in ["add", "sub", "mul", "div"]:
                     if isinstance(self.peek()[1], StackTop):
