@@ -19,13 +19,25 @@ class Interpreter:
         if self.idx < len(self.stmts):
             self.idx += steps
     
+    """
+    checks arg for instance and returns value
+    """
+    def get_inst(self, arg: String|Number|StackTop) -> Any:
+        if (isinstance(arg, String)):
+            arg = self.vmap[arg.value]
+        elif (isinstance(arg, Number)):
+            arg = arg.value
+        elif (isinstance(arg, StackTop)):
+            arg = self.stack.pop()
+        return arg
+    
     def interpret(self) -> TrollResult:
         
         while self.idx < len(self.stmts):
                     
             if self.cur()[0] == "put":
                 if isinstance(self.cur()[1], String):
-                    print(self.cur()[1].value)
+                    print(self.cur()[1].value.replace("\\n", "\n"), end="")
                 elif isinstance(self.cur()[1], StackTop):
                     print(self.stack.pop())
                 self.adv()
@@ -54,24 +66,18 @@ class Interpreter:
                 self.stack.append(self.cur()[1].value)
                 self.adv()
                 
-            elif self.cur()[0] == "add":
-                op1 = self.cur()[1]
-                if isinstance(op1, String):
-                    op1 = self.vmap[op1.value]
-                elif isinstance(op1, Number):
-                    op1 = op1.value
-                elif isinstance(op1, StackTop):
-                    op1 = self.stack.pop()
-                    
-                op2 = self.cur()[2]
-                if isinstance(op2, String):
-                    op2 = self.vmap[op2.value]
-                elif isinstance(op2, Number):
-                    op2 = op2.value
-                elif isinstance(op2, StackTop):
-                    op2 = self.stack.pop()
+            elif self.cur()[0] in ["add", "sub", "mul", "div"]:
                 
-                self.stack.append(op1+op2)
+                op = self.cur()[0]
+                op1 = self.get_inst(self.cur()[1])            
+                op2 = self.get_inst(self.cur()[2])
+                
+                if op == "add":     res = op2+op1
+                elif op == "sub":   res = op2-op1
+                elif op == "mul":   res = op2*op1
+                elif op == "div":   res = op2//op1
+                
+                self.stack.append(res)
                 self.adv()
 
                                 

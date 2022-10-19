@@ -1,7 +1,6 @@
 """
 
-    TROLL
-    by Fuechs
+    TROLL - Designed to hurt you
     Copyright (c) 2022 Fuechs
 
 """

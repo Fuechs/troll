@@ -1,4 +1,3 @@
-from re import S
 from error import TrollResult
 from parser import String, Number, StackTop
 from typing import Any
@@ -47,6 +46,23 @@ class Optimizer:
                         self.insert = False
                         del self.stmts[self.idx]
                         
+            elif self.cur()[0] == "put":
+                """
+                replace
+                    (put String(x))
+                    (put String(y))
+                with
+                    (put String(x+y))
+                """
+                while self.peek() is not None and self.peek()[0] == "put":
+                    if (isinstance(self.cur()[1], String)
+                    and isinstance(self.peek()[1], String)):
+                        self.stmts[self.idx][1] = String(self.cur()[1].value + self.peek()[1].value)
+                        del self.stmts[self.idx+1]
+                    else:
+                        break
+                
+                                 
             self.adv()
         
         self.ast["stmts"] = self.stmts

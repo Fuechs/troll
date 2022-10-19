@@ -24,7 +24,7 @@ def debugAST(ast: dict) -> None:
         
 class String:
     def __init__(self, value: str) -> None:
-        self.value = value
+        self.value: str = value
         
     def __repr__(self) -> str:
         return f"'{self.value}'"

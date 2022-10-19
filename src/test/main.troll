@@ -1,8 +1,11 @@
 troll 
 
-a 1         # a = 1
-1           # push 1
-a + ^       # push a + top of stack
-trOll       # put top of stack
+a 1
+b 2
+3
+a * ^
+b + ^
+"Result: "
+trOll
 
 TROLL 

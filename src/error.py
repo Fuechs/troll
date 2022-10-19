@@ -1,4 +1,4 @@
-# from colorama import Fore as color
+from colorama import Fore as c
 
 class TrollResult:
     
@@ -8,6 +8,6 @@ class TrollResult:
     
     def __repr__(self) -> str:
         if self.success is False:
-            return "[Error]: interpretation failed: "+self.message
+            return f"[{c.RED}Error{c.RESET}]: interpretation failed: "+self.message
         else:
             return "Finished interpretation."

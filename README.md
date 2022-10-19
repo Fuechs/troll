@@ -7,7 +7,7 @@
 > Tokens are seperated by spaces or newlines \
 > Comments begin with '#'
 
-```brainfuck
+```python
 # hello world program
 troll
 "Hello World!" 
@@ -23,16 +23,19 @@ TROLL
 - `"..."` Prints out a string
 - `identifier number` defines variable
 - `number` pushes constant onto stack
-- `+` adds two operands together and pushes result onto stack (soon: `- / *`)
+- `+` adds two operands together and pushes result onto stack (also: `- / *`)
 - `^` top of the stack (does not works as first operand lol)
 
 ```python
 troll 
 
-a 1         # a = 1
-1           # push 1
-a + ^       # push a + top of stack
-trOll       # put top of stack
+a 1
+b 2
+3
+a * ^
+b + ^
+"Result: "
+trOll
 
 TROLL 
 ```
