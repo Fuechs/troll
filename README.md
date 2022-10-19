@@ -39,3 +39,7 @@ trOll
 
 TROLL 
 ```
+
+---
+
+also troll does only read src/test/main.troll because yes.
