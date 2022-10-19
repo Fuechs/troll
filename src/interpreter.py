@@ -35,7 +35,12 @@ class Interpreter:
     
     def interpret(self) -> TrollResult:
         
+        # old_idx = -1
+        
         while self.idx < len(self.stmts):
+            
+            # if self.idx == old_idx: break
+            # old_idx = self.idx
                     
             if self.cur()[0] == "put":
                 if isinstance(self.cur()[1], String):
@@ -59,11 +64,7 @@ class Interpreter:
                     return TrollResult(False, "unknown jump location "+label)
                                 
             elif self.cur()[0] == "hlt":
-                if len(self.cur()) == 1:
-                    break
-                print("\nsleep", self.cur()[1].value)
-                sleep(self.cur()[1].value)
-                self.adv()
+                break
             
             elif self.cur()[0] == "def":
                 name = self.cur()[1].value
@@ -93,6 +94,6 @@ class Interpreter:
 
                                 
             else:
-                return TrollResult(False, "unknown statement "+str(self.cur()))                
-        
+                return TrollResult(False, "unknown statement "+str(self.cur())) 
+                
         return TrollResult()

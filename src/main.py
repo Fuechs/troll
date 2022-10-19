@@ -9,9 +9,10 @@ from subprocess import call
 from sys import argv
 from error import TrollResult
 from lexer import Lexer, Token
-from parser import Parser, debugAST
+from parser import Parser
 from interpreter import Interpreter
 from optimizer import Optimizer
+from debug import debugAST
 
 clear = lambda: call("clear")
     
@@ -35,7 +36,7 @@ def main(argc: int, argv: list[str]) -> TrollResult:
     if res.success is False:
         return res
     
-    # debugAST(ast)
+    debugAST(ast)
             
     optimizer = Optimizer(ast)
     ast, res = optimizer.optimize()
@@ -52,4 +53,4 @@ def main(argc: int, argv: list[str]) -> TrollResult:
 
 
 if __name__ == "__main__":
-    print('\n   ', main(len(argv), argv))
+    print("\n\n"+str(main(len(argv), argv)))

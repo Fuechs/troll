@@ -17,15 +17,14 @@ TROLL
 - `troll` Marks beginning of program
 - `TROLL` Marks end of prorgam (lexer stops here)
 - `Troll identifier` sets label
-- `trolL identifier` goes to label (--> goto)
+- `trolL identifier` goes to label
 - `TrolL` exits program
 - `trOll` outputs top of stack
-- `tRoll number` wait N seconds
 - `"..."` Prints out a string
 - `identifier number` defines variable
 - `number` pushes constant onto stack
 - `+` adds two operands together and pushes result onto stack (also: `- / *`)
-- `^` top of the stack (does not works as first operand lol)
+- `^` top of the stack
 
 ```python
 troll 

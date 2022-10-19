@@ -1,27 +1,16 @@
+from curses import KEY_END
 from operator import truediv
 from typing import Any
 from error import TrollResult
 from lexer import Token, IDENTIFIER, STRING, NUMBER, OPERATOR
 
-KEY_START = "troll"
-KEY_END = "TROLL"
-KEY_LABEL = "Troll"
-KEY_GOTO = "trolL"
-KEY_EXIT = "TrolL"
-KEY_TOP = "trOll"
-KEY_WAIT = "tRoll"
-
-def debugAST(ast: dict) -> None:
-    name = ast["name"]
-    stmts = ast["stmts"]
-    
-    print("---", name, "---")
-    for count, stmt in enumerate(stmts):
-        print(count, end=" ")
-        for arg in stmt:
-            print(arg, end=" ")
-        print()
-    print()
+KEY_START   = "troll"
+KEY_END     = "TROLL"
+KEY_LABEL   = "Troll"
+KEY_GOTO    = "trolL"
+KEY_EXIT    = "TrolL"
+KEY_TOP     = "trOll"
+KEY_WAIT    = "tRoll"
         
 class String:
     def __init__(self, value: str) -> None:
@@ -178,12 +167,7 @@ class Parser:
                 self.adv()
                 
             elif self.cur().lexeme == KEY_WAIT:
-                self.adv()
-                if self.cur().type != NUMBER:
-                    return None, TrollResult(False, "invalid number of seconds to wait")
-                # (hlt Number)
-                self.ast["stmts"].append(["hlt", Number(self.cur().lexeme)])
-                self.adv()
+                return None, TrollResult(False, "tRoll (wait) not implemented yet")
                 
             elif self.cur().type == IDENTIFIER:
                 if (not self.parse_def() 
@@ -193,6 +177,7 @@ class Parser:
             
             else:
                 return None, TrollResult(False, "unknown token "+str(self.cur()))
-                
-                        
+        
+        self.ast["stmts"].append(["hlt"])                    
+                   
         return self.ast, TrollResult()
