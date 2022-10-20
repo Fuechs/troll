@@ -1,5 +1,4 @@
 from curses import KEY_END
-from operator import truediv
 from typing import Any
 from error import TrollResult
 from lexer import Token, IDENTIFIER, STRING, NUMBER, OPERATOR
@@ -11,6 +10,7 @@ KEY_GOTO    = "trolL"
 KEY_EXIT    = "TrolL"
 KEY_TOP     = "trOll"
 KEY_WAIT    = "tRoll"
+KEY_IF      = "tROLL"
         
 class String:
     def __init__(self, value: str) -> None:
@@ -91,6 +91,7 @@ class Parser:
         elif op == '-': op = "sub"
         elif op == '*': op = "mul"
         elif op == '/': op = "div"
+        elif op == '=': op = "equ"
         else:           return None
         
         self.adv()
@@ -122,13 +123,14 @@ class Parser:
         self.ast["stmts"].append(["psh", item])
         return True
 
-    def parse(self) -> tuple[dict[Any, Any], TrollResult]:
+    def parse(self, once: bool = False) -> tuple[dict[Any, Any], TrollResult]:
                                 
-        if self.cur().lexeme != KEY_START:
-            return None, TrollResult(False, "missing troll to start program")
-        self.adv()
+        if once is False:
+            if self.cur().lexeme != KEY_START:
+                return None, TrollResult(False, "missing troll to start program")
+            self.adv()
         
-        while self.idx < len(self.tokens) - 1:
+        while self.idx < len(self.tokens):
             
             if self.cur().lexeme == KEY_END:
                 break
@@ -142,6 +144,10 @@ class Parser:
                 if (not self.parse_expr() 
                 and not self.parse_push()):   
                     return None, TrollResult(False, "random number")
+                
+            elif self.cur().type == OPERATOR:
+                if (not self.parse_expr()):
+                    return None, TrollResult(False, "invalid expression at ^")
                 
             elif self.cur().lexeme == KEY_LABEL:
                 self.adv()
@@ -164,20 +170,52 @@ class Parser:
                 self.adv()
                 # (put StackTop)
                 self.ast["stmts"].append(["put", StackTop()])
-                self.adv()
                 
             elif self.cur().lexeme == KEY_WAIT:
                 return None, TrollResult(False, "tRoll (wait) not implemented yet")
+            
+            elif self.cur().lexeme == KEY_IF:
+                if once is True:
+                    return None, TrollResult(False, "can not nest if statements")
+                
+                self.adv()
+                
+                if self.cur().type not in [OPERATOR, NUMBER, IDENTIFIER]:
+                    return None, TrollResult(False, "invalid type to compare after tROLL (if)")
+                left = self.parse_operand()
+                
+                if self.cur().type != OPERATOR:
+                    return None, TrollResult(False, "invalid comparison mode in tROLL (if)")
+                comp = self.parse_operation()
+                
+                if self.cur().type not in [OPERATOR, NUMBER, IDENTIFIER]:
+                    return None, TrollResult(False, "invalid (second) type to compare after tROLL (if)")
+                right = self.parse_operand()
+                
+                _ast = self.ast
+                self.ast = {
+                    "name": "if",
+                    "stmts": []
+                }
+                self.parse(True)
+                action = self.ast
+                self.ast = _ast
+                # (comp left right)
+                self.ast["stmts"].append([comp, left, right, action])
                 
             elif self.cur().type == IDENTIFIER:
-                if (not self.parse_def() 
-                and not self.parse_expr() 
+                if (not self.parse_def()
+                and not self.parse_expr()
                 and not self.parse_push()):     
                     return None, TrollResult(False, "random identifier")  
             
             else:
                 return None, TrollResult(False, "unknown token "+str(self.cur()))
+            
+            if once is True: 
+                break
         
-        self.ast["stmts"].append(["hlt"])                    
+        if once is False:
+            self.ast["stmts"].append(["hlt"])
                    
         return self.ast, TrollResult()

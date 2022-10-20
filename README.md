@@ -20,7 +20,8 @@ TROLL
 - `trolL identifier` goes to label
 - `TrolL` exits program
 - `trOll` outputs top of stack
-- `"..."` Prints out a string
+- `"..."` prints out a string
+- `identifier` pushes variable onto stack
 - `identifier number` defines variable
 - `number` pushes constant onto stack
 - `+` adds two operands together and pushes result onto stack (also: `- / *`)

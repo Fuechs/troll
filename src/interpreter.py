@@ -33,7 +33,7 @@ class Interpreter:
             arg = self.stack.pop()
         return arg
     
-    def interpret(self) -> TrollResult:
+    def interpret(self, once: bool = False) -> TrollResult:
         
         # old_idx = -1
         
@@ -46,7 +46,6 @@ class Interpreter:
                 if isinstance(self.cur()[1], String):
                     print(self.cur()[1].value.replace("\\n", "\n"), end="")
                 elif isinstance(self.cur()[1], StackTop):
-                    # print(self.stack)
                     print(self.stack.pop())
                 self.adv()
             
@@ -64,7 +63,7 @@ class Interpreter:
                     return TrollResult(False, "unknown jump location "+label)
                                 
             elif self.cur()[0] == "hlt":
-                break
+                return TrollResult(False, "__if__break__")
             
             elif self.cur()[0] == "def":
                 name = self.cur()[1].value
@@ -74,7 +73,9 @@ class Interpreter:
                 self.adv()
             
             elif self.cur()[0] == "psh":
-                self.stack.append(self.cur()[1].value)
+                value = self.get_inst(self.cur()[1])
+                self.stack.append(value)
+                del value
                 self.adv()
                 
             elif self.cur()[0] in ["add", "sub", "mul", "div"]:
@@ -92,8 +93,32 @@ class Interpreter:
                 del op, op1, op2, res
                 self.adv()
 
+            elif self.cur()[0] == "equ":
+                
+                left = self.get_inst(self.cur()[1])
+                right = self.get_inst(self.cur()[2])
+                
+                if left == right:
+                    _stmts, _idx = self.stmts, self.idx
+                    self.stmts, self.idx = self.cur()[3]["stmts"], 0
+                    
+                    result = self.interpret(True)
+                    if result.message == "__if__break__":
+                        break
+                    elif result.success is False:
+                        return result
+                    
+                    self.stmts, self.idx = _stmts, _idx
+                    del _stmts, _idx
+                
+                del left, right
+                
+                self.adv()
                                 
             else:
                 return TrollResult(False, "unknown statement "+str(self.cur())) 
+            
+            if once is True:
+                break
                 
         return TrollResult()

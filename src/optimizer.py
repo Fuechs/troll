@@ -35,16 +35,18 @@ class Optimizer:
                 with
                     (BOP Any|x Any|x) 
                 """
-                if self.peek()[0] in ["add", "sub", "mul", "div"]:
-                    if isinstance(self.peek()[1], StackTop):
-                        self.peek()[1] = self.cur()[1]
-                        self.insert = True
-                    if isinstance(self.peek()[2], StackTop):
-                        self.peek()[2] = self.cur()[1]
-                        self.insert = True
-                    if self.insert is True:
-                        self.insert = False
-                        del self.stmts[self.idx]
+                # if self.peek()[0] in ["add", "sub", "mul", "div"]:
+                #     if isinstance(self.peek()[1], StackTop):
+                #         self.peek()[1] = self.cur()[1]
+                #         self.insert = True
+                #     if isinstance(self.peek()[2], StackTop):
+                #         self.peek()[2] = self.cur()[1]
+                #         self.insert = True
+                #     if self.insert is True:
+                #         self.insert = False
+                #         del self.stmts[self.idx]
+                
+                # ! breaks loops that increment
                         
             elif self.cur()[0] == "put":
                 """

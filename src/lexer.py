@@ -66,7 +66,7 @@ class Lexer:
             
     def lex_op(self) -> tuple[str, TrollResult]:
         
-        if self.cur() in "+-/*^":
+        if self.cur() in "+-/*^=":
             op = self.cur()
             self.adv()
             return op, TrollResult()
