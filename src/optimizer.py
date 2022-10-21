@@ -35,26 +35,26 @@ class Optimizer:
                 with
                     (BOP Any|x Any|x) 
                 """
-                # if self.peek()[0] in ["add", "sub", "mul", "div"]:
-                #     if isinstance(self.peek()[1], StackTop):
-                #         self.peek()[1] = self.cur()[1]
-                #         self.insert = True
-                #     if isinstance(self.peek()[2], StackTop):
-                #         self.peek()[2] = self.cur()[1]
-                #         self.insert = True
-                #     if self.insert is True:
-                #         self.insert = False
-                #         del self.stmts[self.idx]
+                if self.peek()[0] in ["add", "sub", "mul", "div"]:
+                    if isinstance(self.peek()[1], StackTop):
+                        self.peek()[1] = self.cur()[1]
+                        self.insert = True
+                    if isinstance(self.peek()[2], StackTop):
+                        self.peek()[2] = self.cur()[1]
+                        self.insert = True
+                    if self.insert is True:
+                        self.insert = False
+                        del self.stmts[self.idx]
                 
-                # ! breaks loops that increment
                         
             elif self.cur()[0] == "put":
                 """
                 replace
                     (put String(x))
                     (put String(y))
+                    ...
                 with
-                    (put String(x+y))
+                    (put String(x+y+...))
                 """
                 while self.peek() is not None and self.peek()[0] == "put":
                     if (isinstance(self.cur()[1], String)

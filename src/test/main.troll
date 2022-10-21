@@ -1,9 +1,19 @@
+# troll: start program
+# TROLL: end program
+# Troll: define label
+# trolL: go to label
+# TROll: increment variable
+# tROLL: if statement
+# TrolL: halt program
+
 troll
-a 0
-"&a\n"
+counter 0
+"&counter\n"
 Troll loop (
-    TROll a
-    "&a\n"
-    tROLL (a = 100) TrolL
+    TROll counter
+    "&counter\n"
+    tROLL (counter = 100) (
+        TrolL
+    )
 ) trolL loop
 TROLL 
