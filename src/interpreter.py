@@ -33,6 +33,43 @@ class Interpreter:
             arg = self.stack.pop()
         return arg
     
+    def format_str(self, string: str) -> str:
+        string = string.replace("\\n", "\n")
+        idx = 0
+        
+        def check(mod: int = 0):
+            nonlocal idx, string
+            return idx+mod < len(string)
+        
+        def cur():
+            nonlocal idx, string
+            return string[idx]
+        
+        def adv():
+            nonlocal idx, string
+            if check(1):
+                idx += 1
+                
+        while check(1):
+            if cur() == '&':
+                adv()
+                varname = ""
+                last = None
+                while (not cur().isspace()) and check():
+                    if last == cur(): break
+                    last = cur()
+                    varname += cur()
+                    adv()
+                if varname not in self.vmap:
+                    print(TrollResult(False, "variable "+varname+" does not exist"))
+                    exit(1)
+                string = string.replace('&'+varname, str(self.vmap[varname]))
+                del varname, last
+            adv()
+        
+        return string
+            
+    
     def interpret(self, once: bool = False) -> TrollResult:
         
         # old_idx = -1
@@ -44,7 +81,7 @@ class Interpreter:
                     
             if self.cur()[0] == "put":
                 if isinstance(self.cur()[1], String):
-                    print(self.cur()[1].value.replace("\\n", "\n"), end="")
+                    print(self.format_str(self.cur()[1].value), end="")
                 elif isinstance(self.cur()[1], StackTop):
                     print(self.stack.pop())
                 self.adv()
@@ -63,7 +100,9 @@ class Interpreter:
                     return TrollResult(False, "unknown jump location "+label)
                                 
             elif self.cur()[0] == "hlt":
-                return TrollResult(False, "__if__break__")
+                if once is True:
+                    return TrollResult(False, "__if__break__")
+                break
             
             elif self.cur()[0] == "def":
                 name = self.cur()[1].value
@@ -79,7 +118,6 @@ class Interpreter:
                 self.adv()
                 
             elif self.cur()[0] in ["add", "sub", "mul", "div"]:
-                
                 op = self.cur()[0]
                 op1 = self.get_inst(self.cur()[1])            
                 op2 = self.get_inst(self.cur()[2])
@@ -94,7 +132,6 @@ class Interpreter:
                 self.adv()
 
             elif self.cur()[0] == "equ":
-                
                 left = self.get_inst(self.cur()[1])
                 right = self.get_inst(self.cur()[2])
                 
@@ -113,6 +150,13 @@ class Interpreter:
                 
                 del left, right
                 
+                self.adv()
+                
+            elif self.cur()[0] == "inc":
+                varname = self.cur()[1].value
+                if varname not in self.vmap:
+                    return TrollResult(False, "variable "+varname+" does not exist")
+                self.vmap[varname] += 1
                 self.adv()
                                 
             else:

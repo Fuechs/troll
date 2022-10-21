@@ -1,10 +1,9 @@
-troll 
-
-0
-
+troll
+a 0
+"&a\n"
 Troll loop
-    ^ + 1
-    tROLL ^ = 10 TrolL
+    TROll a
+    "&a\n"
+    tROLL a = 100 TrolL
 trolL loop
-
 TROLL 

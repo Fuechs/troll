@@ -11,6 +11,7 @@ KEY_EXIT    = "TrolL"
 KEY_TOP     = "trOll"
 KEY_WAIT    = "tRoll"
 KEY_IF      = "tROLL"
+KEY_INCR    = "TROll"
         
 class String:
     def __init__(self, value: str) -> None:
@@ -202,6 +203,15 @@ class Parser:
                 self.ast = _ast
                 # (comp left right)
                 self.ast["stmts"].append([comp, left, right, action])
+                
+            elif self.cur().lexeme == KEY_INCR:
+                self.adv()
+                variable = self.parse_operand()
+                if not isinstance(variable, String):
+                    return None, TrollResult(False, "invalid type after TROll")
+                # (inc variable)
+                self.ast["stmts"].append(["inc", variable])
+                del variable
                 
             elif self.cur().type == IDENTIFIER:
                 if (not self.parse_def()

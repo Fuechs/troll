@@ -20,7 +20,10 @@ TROLL
 - `trolL identifier` goes to label
 - `TrolL` exits program
 - `trOll` outputs top of stack
+- `tROLL object operator object statement` if statement
+- `TROll identifier` increment variable
 - `"..."` prints out a string
+- `"&identifier"` output variable value
 - `identifier` pushes variable onto stack
 - `identifier number` defines variable
 - `number` pushes constant onto stack
@@ -28,16 +31,14 @@ TROLL
 - `^` top of the stack
 
 ```python
-troll 
-
-a 1
-b 2
-3
-a * ^
-b + ^
-"Result: "
-trOll
-
+troll
+a 0
+"&a\n"
+Troll loop
+    TROll a
+    "&a\n"
+    tROLL a = 100 TrolL
+trolL loop
 TROLL 
 ```
 
