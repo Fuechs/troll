@@ -1,9 +1,9 @@
 troll
 a 0
 "&a\n"
-Troll loop
+Troll loop (
     TROll a
     "&a\n"
-    tROLL a = 100 TrolL
-trolL loop
+    tROLL (a = 100) TrolL
+) trolL loop
 TROLL 

@@ -104,6 +104,9 @@ class Lexer:
                     self.adv()
                 self.adv()
                 
+            elif self.cur() in "()":
+                self.adv()
+                
             else:
                 lexeme, result = self.lex_op()
                 if result.success is False:

@@ -6,6 +6,7 @@
 
 > Tokens are seperated by spaces or newlines \
 > Comments begin with '#'
+> '(' and ')' are ignored
 
 ```python
 # hello world program
